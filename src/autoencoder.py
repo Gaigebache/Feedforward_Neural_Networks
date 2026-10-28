@@ -1,7 +1,7 @@
 """Model 3: feedforward network whose first layer is pre-trained as an autoencoder."""
 
 import numpy as np
-from neural_network import build_network, output_activation_for_task, copy_network, initialize_layer, ouput_activation_for_task, predict_network, split_validation, train_network
+from neural_network import build_network, output_activation_for_task, copy_network, initialize_layer, output_activation_for_task, predict_network, split_validation, train_network
 
 def build_autoencoder_model(n_inputs, n_hidden, hidden_activation, rng):
     """Input -> Encoding -> Output, where the output has 1 node per input"""
@@ -9,9 +9,9 @@ def build_autoencoder_model(n_inputs, n_hidden, hidden_activation, rng):
         raise ValueError(f"Autoencoder must have fewer encoding nodes than inputs, got {n_hidden} >= {n_inputs}")
     return build_network([n_inputs, n_hidden, n_inputs], hidden_activation, "linear", rng)
 
-def train_autoecoder(X, n_encoding, hidden_activation, hyperparameters, rng, X_val=None):
+def train_autoencoder(X, n_encoding, hidden_activation, hyperparameters, rng, X_val=None):
     """Train the autoencoder so its output matches it input (the targets are X itself)."""
-    autoencoder = build_autoencoder(X.shape[1], n_encoding, hidden_activation, rng)
+    autoencoder = build_autoencoder_model(X.shape[1], n_encoding, hidden_activation, rng)
     return train_network(autoencoder, X, X, hyperparameters, rng, X_val, X_val)
 
 def reconstruction_error(autoencoder, X):
@@ -41,8 +41,10 @@ def train_autoencoder_model(X_train, Y_train, task, n_encoding, n_hidden2, hidde
 
     X_fit, Y_fit, X_val, Y_val = split_validation(X_train, Y_train, validation_fraction, rng)
     
-    autoencoder, autoencoder_history = train_autoencoder(X_fit, n_encoding, hidden_activation, autoencoder_hyperparameters, rng, X_val)
+    autoencoder, autoencoder_history = train_autoencoder(
+        X_fit, n_encoding, hidden_activation, autoencoder_hyperparameters, rng, X_val)
 
+    network = attach_prediction_layers(autoencoder, n_hidden2, Y_train.shape[1], task, hidden_activation, rng, freeze_encoder)
     network, prediction_history = train_network(network, X_fit, Y_fit, prediction_hyperparameters, rng, X_val, Y_val)
 
     info={"autoencoder_history": autoencoder_history, "prediction_history": prediction_history, 
