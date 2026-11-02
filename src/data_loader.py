@@ -150,7 +150,7 @@ def default_data_dir():
             return path
     return os.path.join(here, "data")
 
-def load_dataset(name, data_dir):
+def load_dataset(name, data_dir = None):
     """Load one of the six project datasets by name from data_dir defaults to default_data_dir()."""
     data_dir = data_dir or default_data_dir()
     registry = get_dataset_registry()
