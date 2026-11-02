@@ -141,9 +141,18 @@ def get_dataset_registry():
         "forest_fires": (load_forest_fires, ["forestfires.csv"]),
     }
 
+def default_data_dir():
+    """Find the data folder, so the code works in both project layouts."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    for candidate in ("data", "Data", os.path.join("..", "Data"), os.path.join("..", "data")):
+        path = os.path.normpath(os.path.join(here, candidate))
+        if os.path.isdir(path):
+            return path
+    return os.path.join(here, "data")
 
 def load_dataset(name, data_dir):
-    """Load one of the six project datasets by name from data_dir."""
+    """Load one of the six project datasets by name from data_dir defaults to default_data_dir()."""
+    data_dir = data_dir or default_data_dir()
     registry = get_dataset_registry()
     if name not in registry:
         raise ValueError(f"Unknown dataset '{name}'. Choose from {sorted(registry)}")
