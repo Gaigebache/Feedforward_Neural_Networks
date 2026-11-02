@@ -8,7 +8,7 @@ def split_halves(indices, y, task, rng):
     if task == "classification":
         half_a, half_b = [], []
         for label in np.unique(y[indices]):
-            members = rng.permutation(y[indices] == label)
+            members = rng.permutation(np.flatnonzero(y[indices] == label))
             first, second = members[0::2], members[1::2]
             if rng.random() < 0.5:
                 first, second = second, first
